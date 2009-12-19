@@ -1,0 +1,30 @@
+
+[Anjuta]
+Maximized=1
+Geometry=1680x993+0+32
+
+[File Loader]
+Files=file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.c#35%%%file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h#19%%%file:///home/roby/Projects/pidgin-sharedesk/src/sharedesk.c#37
+
+[Document Manager]
+bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
+
+[Execution]
+Program arguments=
+Program uri=file:///usr/local/bin/pidgin%%%file:///home/roby/Projects/pidgin-sharedesk/Debug/pidgin
+Run in terminal=2
+Working directories=file:///home/roby/Projects/pidgin-sharedesk
+
+[Debugger]
+Stop at beginning=2
+
+[Build]
+Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized
+Selected Configuration=Debug
+BuildArgs/Default=--enable-maintainer-mode
+BuildArgs/Debug=--enable-maintainer-mode 'CFLAGS=-g -O0' 'CXXFLAGS=-g -O0' 'JFLAGS=-g -O0' 'FFLAGS=-g -O0'
+BuildArgs/Profiling=--enable-maintainer-mode 'CFLAGS=-g -pg' 'CXXFLAGS=-g -pg' 'JFLAGS=-g -pg' 'FFLAGS=-g -pg'
+BuildArgs/Optimized=--enable-maintainer-mode 'CFLAGS=-O2' 'CXXFLAGS=-O2' 'JFLAGS=-O2' 'FFLAGS=-O2'
+
+[SymbolDB]
+SystemPackages=pidgin%%%purple%%%gupnp-1.0%%%gssdp-1.0%%%libsoup-2.4%%%libxml-2.0
