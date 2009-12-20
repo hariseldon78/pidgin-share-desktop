@@ -34,58 +34,151 @@
 
 #include <glib.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "debug.h"
 #include "plugin.h"
 #include "version.h"
 #include "blist.h"
+#include "request.h"
 
 #include "upnp-functions.h"
 
 PurplePlugin *the_plugin;
-PurpleValue *localip, *port;
+PurpleValue *server_ip, *port;
+pid_t server_pid=0;
+
+
+
+static void
+sharedesk_accept_connection_cb(void* user_data)
+{
+	purple_debug_misc(PLUGIN_ID,"sharedesk_accept_connection_cb(...)\n");
+	char** splitted_command=(char**)user_data;
+/*	PurpleAccount* account=(PurpleAccount*)splitted_command[5];
+	PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, splitted_command[6]);
+	PurpleConvIm *im = purple_conversation_get_im_data(conv);
+	const char* msg="sharedesk|accept_connection|"
+		"\nThe buddy is accepting to share your desktop"
+		"\n|||";
+
+	purple_conv_im_send(im, msg); */
+	
+	g_strfreev(splitted_command);
+	if (fork()==0)
+	{
+		const char* cmd=purple_prefs_get_string(PREF_CLIENT_COMMAND_LINE);
+
+		/* sostituisco la porta nella stringa di comando */
+		GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
+		char* cmd1=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
+
+		GRegex *ip_regex=g_regex_new("[$]SERVER_IP",0,0,NULL);
+		char* cmd2=g_regex_replace(ip_regex,cmd,-1,0,purple_value_get_string(server_ip),0,NULL);
+
+
+		purple_debug_misc(PLUGIN_ID,"client command=\"%s\"\n",cmd2);
+
+		system(cmd2);
+		
+		g_free(cmd2);
+		g_free(ip_regex);
+		g_free(cmd1);
+		g_free(port_regex);
+	}
+}
+
+static void
+sharedesk_refuse_connection_cb(void* user_data)
+{
+	purple_debug_misc(PLUGIN_ID,"sharedesk_refuse_connection_cb(...)\n");
+	char** splitted_command=(char**)user_data;
+	PurpleAccount* account=(PurpleAccount*)splitted_command[5];
+	PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, splitted_command[6]);
+	PurpleConvIm *im = purple_conversation_get_im_data(conv);
+	const char* msg="sharedesk|refuse_connection|"
+		"\nThe buddy is refusing to share your desktop"
+		"\n|||";
+
+	purple_conv_im_send(im, msg); 
+	g_strfreev(splitted_command);
+}
+
+
+
 
 /* callback richiamata quando arriva un messaggio im */
 static gboolean 
 receiving_im_cb(PurpleAccount *account, char **sender,
     char **message, PurpleConversation *conv,
-    PurpleMessageFlags *flags)
+                             PurpleMessageFlags *flags)
 {
 	/*cerco nel messaggio se c'e' qualche avviso per il plugin*/
 	GRegex *command_regex=g_regex_new("sharedesk[|].*[|][|][|]",G_REGEX_DOTALL,0,NULL);
 	GMatchInfo *match_info;
-	if(!g_regex_match(command_regex,*message,0,match_info))
+	if(!g_regex_match(command_regex,*message,0,&match_info))
 		return FALSE; /* tiene il messaggio cosi' com'e' */
 
-	purple_notify_info(the_plugin,"Debug","Messaggio arrivato:",*message);
-
 	char *command=g_match_info_fetch(match_info,0);
-	purple_notify_info(the_plugin,"Debug","Comando ricevuto",command);
+	purple_debug_misc(PLUGIN_ID,"received command:%s\n",command);
 
-	gchar **splitted_command=g_regex_split_simple(".*|",command,G_REGEX_DOTALL,0);
-	/*******************************************************************
-	 qui fare l'interpretazione del comando ricevuto:
-	 splitted_command[0]=="sharedesk" (magari controllare)
-	 splitted_command[1]==comando
-	 splitted_command[1+k]==k-esimo argomento del comando
-	 ...
-	 3 match fasulli per il terminatore
-	 ********************************************************************/
+	gchar **splitted_command=g_strsplit(command,"|",0);
+	int count_command_parts;
+	purple_debug_misc(PLUGIN_ID,"splitting command\n");
+	for (count_command_parts=0;splitted_command[count_command_parts]!=NULL;count_command_parts++)
+	{
+		purple_debug_misc(PLUGIN_ID,"im[%d]=\"%s\"\n",count_command_parts,splitted_command[count_command_parts]);
+	}
 
 
-
-
-
-	g_strfreev(splitted_command);
+	/* command processing */
+	if (g_strcmp0(splitted_command[1],"request_connection")==0)
+	{
+		/* args:
+		 2: ip
+		 3: port
+		 4: description
+		 5,6,7: unused
+		 */
+		char msg[100];
+		snprintf(msg,100,"Your buddy %s is asking to you to share his desktop. Accept?",*sender);
+		purple_value_set_string(server_ip,splitted_command[2]);
+		purple_value_set_string(port,splitted_command[3]);
+		splitted_command[5]=(char*)account;
+		splitted_command[6]=g_strdup(*sender);
+		purple_debug_misc(PLUGIN_ID,"purple_request_action(%s,...)\n",msg);
+		purple_request_action(the_plugin,
+			"Share desktop",
+		    	"Connection request",
+		    	msg,
+			0,
+			account,
+			*sender,
+			conv,
+			splitted_command,
+		    	2,
+		    	"_Accept", 
+		    	sharedesk_accept_connection_cb,
+		    	"_Refuse", 
+			sharedesk_refuse_connection_cb);
+		
+	}
+	else if(g_strcmp0(splitted_command[1],"refuse_connection")==0)
+	{
+		char msg[100];
+		snprintf(msg,100,"%s has refused to share your desktop",*sender);
+		purple_notify_info(the_plugin,"Share desktop","Refused connection",msg);
+	}
 
 	char* msg=g_regex_replace(command_regex,*message,-1,0,"",0,NULL);
 	g_free(*message);
 	*message=msg; /* giusto??? controllare! */
+		return FALSE;
 
 	/*trimmiamo*/
 	g_strstrip(*message);
 
-	purple_notify_info(the_plugin,"Debug","Messaggio modificato",*message);
+	/*purple_notify_info(the_plugin,"Debug","Messaggio modificato",*message);*/
 
 	/* dopo aver sottratto la stringa di comando da message, se rimane qualcosa	
 	 return FALSE;
@@ -110,7 +203,7 @@ receiving_im_cb(PurpleAccount *account, char **sender,
 static gboolean
 plugin_unload(PurplePlugin *plugin)
 {
-	g_free(localip);
+	g_free(server_ip);
 	g_free(port);
 
 	return TRUE;
@@ -150,10 +243,46 @@ static PurplePluginUiInfo prefs_info = {
 };
 
 
+
+
 static void
-dont_do_it_cb(PurpleBlistNode *node, const char *note)
+dont_do_it_cb(PurpleBlistNode *node, const char *ignore)
 {
 }
+
+
+
+
+static void 
+send_connect_request_message(PurpleBlistNode *node)
+{
+	PurpleAccount* account=purple_buddy_get_account(PURPLE_BUDDY(node));
+
+	PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, purple_buddy_get_name (PURPLE_BUDDY(node)));
+	PurpleConvIm *im = purple_conversation_get_im_data(conv);
+
+	const char* remote_message="sharedesk|request_connection|$SERVER_IP|$PORT|"
+		"\nPlease start a vnc connection. Sample command line:"
+		"\n$CLIENT_CMD"
+		"\n|||";
+	GRegex *port_regex1=g_regex_new("[$]CLIENT_CMD",0,0,NULL);
+	char* msg1=g_regex_replace(port_regex1,remote_message,-1,0,purple_prefs_get_string(PREF_CLIENT_COMMAND_LINE),0,NULL);
+	GRegex *port_regex2=g_regex_new("[$]PORT",0,0,NULL);
+	char* msg2=g_regex_replace(port_regex2,msg1,-1,0,purple_value_get_string(port),0,NULL);
+	GRegex *port_regex3=g_regex_new("[$]SERVER_IP",0,0,NULL);
+	char* msg3=g_regex_replace(port_regex3,msg2,-1,0,purple_value_get_string(server_ip),0,NULL);
+
+	purple_conv_im_send(im, msg3); 
+	
+
+	g_free(msg3);
+	g_free(msg2);
+	g_free(msg1);
+	g_free(port_regex1);
+	g_free(port_regex2);
+	g_free(port_regex3);
+}
+
 
 
 
@@ -168,44 +297,22 @@ start_connection(PurpleBlistNode *node)
 	GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
 	char* msg=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
 
-	if (PURPLE_BLIST_NODE_IS_BUDDY(node))
+	purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",msg);
+	server_pid=fork();
+	if (server_pid==0)
 	{
-		PurpleAccount* account=purple_buddy_get_account(PURPLE_BUDDY(node));
-
-		PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, purple_buddy_get_name (PURPLE_BUDDY(node)));
-		PurpleConvIm *im = purple_conversation_get_im_data(conv);
-
-		const char* remote_message="sharedesk|request_connection"
-			"|$SERVER_IP"
-			"|$PORT"
-			"\nPlease start a vnc connection. Sample command line:"
-			"\n$CLIENT_CMD"
-			"\n|||";
-		GRegex *port_regex1=g_regex_new("[$]CLIENT_CMD",0,0,NULL);
-		char* msg1=g_regex_replace(port_regex1,remote_message,-1,0,purple_prefs_get_string(PREF_CLIENT_COMMAND_LINE),0,NULL);
-		GRegex *port_regex2=g_regex_new("[$]PORT",0,0,NULL);
-		char* msg2=g_regex_replace(port_regex2,msg1,-1,0,purple_value_get_string(port),0,NULL);
-		GRegex *port_regex3=g_regex_new("[$]SERVER_IP",0,0,NULL);
-		char* msg3=g_regex_replace(port_regex3,msg2,-1,0,purple_value_get_string(localip),0,NULL);
-
-		purple_conv_im_send(im, msg3); 
-
-		g_free(msg3);
-		g_free(msg2);
-		g_free(msg1);
-		g_free(port_regex1);
-		g_free(port_regex2);
-		g_free(port_regex3);
+		/* child process: eseguo il server */
+		system(msg);
 	}
-	/*
-	 if (PURPLE_BLIST_NODE_IS_CONTACT(node))
-	 {
-		 purple_notify_info(the_plugin,"Debug","Node identification","Is contact!");
-		 purple_notify_info(the_plugin,"Debug","Contact alias",purple_contact_get_alias (PURPLE_CONTACT(node)));
-	 }*/
+	else 
+	{
+		/* original process: invio la richiesta di connessione*/
+		send_connect_request_message(node);
+
+		/* il plugin ora non deve far altro che aspettare la richiesta di chiusura */
+	}
 	g_free(msg);
 	g_free(port_regex);
-
 }
 
 
@@ -213,11 +320,11 @@ start_connection(PurpleBlistNode *node)
 
 /* callback richiamata quando l'utente ha inserito la porta */
 static void
-sharedesk_set_ip_cb(PurpleBlistNode *node, const char *_localip)
+sharedesk_set_ip_cb(PurpleBlistNode *node, const char *_server_ip)
 {
 
 
-	purple_value_set_string(localip,_localip);
+	purple_value_set_string(server_ip,_server_ip);
 	start_connection(node);
 
 }
@@ -234,7 +341,7 @@ sharedesk_set_port_cb(PurpleBlistNode *node, const char *_port)
 	if (!upnp_add_port_mapping(atoi(_port)))
 	{
 		char msg[100];
-		snprintf(&msg,100,"You must manually open the port %d on the router, if any",atoi(_port));
+		snprintf(msg,100,"You must manually open the port %d on the router, if any",atoi(_port));
 		purple_notify_warning(the_plugin,"No upnp available","Port mapping",msg);
 	}
 
@@ -242,14 +349,14 @@ sharedesk_set_port_cb(PurpleBlistNode *node, const char *_port)
 	char* upnp_ip=NULL;
 	upnp_get_ip(&upnp_ip);
 
-	purple_debug_misc(PLUGIN_ID,"ip=\"%s\"",upnp_ip);
-	purple_value_set_string(localip,upnp_ip);
+	purple_debug_misc(PLUGIN_ID,"ip=\"%s\"\n",upnp_ip);
+	purple_value_set_string(server_ip,upnp_ip);
 
 
-	purple_debug_misc(PLUGIN_ID,"localip=\"%s\"",purple_value_get_string(localip));
+	purple_debug_misc(PLUGIN_ID,"server_ip=\"%s\"\n",purple_value_get_string(server_ip));
 
 	/* se non è disponibile lo chiedo */
-	if (g_strcmp0(purple_value_get_string(localip),"")==0 || g_strcmp0(purple_value_get_string(localip),"(null)")==0 )
+	if (g_strcmp0(purple_value_get_string(server_ip),"")==0 || g_strcmp0(purple_value_get_string(server_ip),"(null)")==0 )
 		purple_request_input(node, "Share desktop",
 		    "Enter the local ip address...",
 		    NULL,
@@ -260,10 +367,12 @@ sharedesk_set_port_cb(PurpleBlistNode *node, const char *_port)
 		    node);
 	else
 	{
-		purple_notify_info(the_plugin,"Debug","Ip rilevato via upnp",purple_value_get_string(localip));
+		purple_notify_info(the_plugin,"Debug","Ip rilevato via upnp",purple_value_get_string(server_ip));
 		start_connection(node);
 	}
 }
+
+
 
 
 
@@ -283,6 +392,10 @@ sharedesk_request_connection_cb(PurpleBlistNode *node, gpointer data)
 
 }
 
+
+
+
+
 /* callback richiamata quando pidgin sta costruendo il menu di un buddy */
 static void
 sharedesk_extended_menu_cb(PurpleBlistNode *node, GList **m)
@@ -291,7 +404,7 @@ sharedesk_extended_menu_cb(PurpleBlistNode *node, GList **m)
 	PurpleMenuAction *bna = NULL;
 
 	/* controlla che sia un nodo buddy */
-	if (!(PURPLE_BLIST_NODE_IS_BUDDY(node) /* TODO, se e' un contact usare il priority_buddy|| PURPLE_BLIST_NODE_IS_CONTACT(node)*/))
+	if (!(PURPLE_BLIST_NODE_IS_BUDDY(node) ))
 		return;
 
 	*m = g_list_append(*m, bna);
@@ -308,18 +421,18 @@ sharedesk_extended_menu_cb(PurpleBlistNode *node, GList **m)
 static gboolean
 plugin_load(PurplePlugin *plugin)
 {
+	/* leggo i messaggi in arrivo per cercare un avviso di connessione*/
+	purple_signal_connect(purple_conversations_get_handle(), "receiving-im-msg",
+	    plugin, PURPLE_CALLBACK(receiving_im_cb),NULL);
+
 	/* attacco al nodo la voce di menu */
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-extended-menu",
 	    plugin, PURPLE_CALLBACK(sharedesk_extended_menu_cb), NULL);
 
-	/* leggo i messaggi in arrivo per cercare un avviso di connessione*/
-	purple_signal_connect(purple_conversations_get_handle(), "receiving_im_msg",
-	    plugin, PURPLE_CALLBACK(receiving_im_cb),NULL);
-
 	/* inizializzo le opzioni */
 
 	port = purple_value_new(PURPLE_TYPE_STRING);
-	localip = purple_value_new(PURPLE_TYPE_STRING);
+	server_ip = purple_value_new(PURPLE_TYPE_STRING);
 
 
 	return TRUE;

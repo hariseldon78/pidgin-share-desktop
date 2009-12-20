@@ -1,12 +1,15 @@
 #include <libgupnp/gupnp-control-point.h>
 #include "bindings.h"
 
-/*static GMainLoop *main_loop;*/
+#define TIMEOUT 		100000
+#define NOTIFY_INTERVAL 	1
+#define PORT_MAPPING_TTL_SEC 	1800
+
 char **ip = NULL;
 
 char *internal_ip;
 int port_to_open;
-gboolean callback_executed;
+gboolean callback_executed,success;
 
 static void
 upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
@@ -15,33 +18,23 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
 {
 	GError *error = NULL;
 	
-	g_printerr ("calling DeletePortMapping for port %d ",port_to_open);
+	g_printerr ("calling DeletePortMapping for port %d \n",port_to_open);
 	/* prima elimino il vecchio port mapping */
-	gupnp_service_proxy_send_action (proxy,
-	    /* Action name and error location */
-	    "DeletePortMapping", &error,
-	    /* IN args */
-	    "NewRemoteHost",
-	    G_TYPE_STRING, "",
+	delete_port_mapping (proxy,
+                     "",
+                     port_to_open,
+                     "TCP",
+                     error);
 
-	    "NewExternalPort",
-	    G_TYPE_UINT, port_to_open,
-
-	    "NewProtocol",
-	    G_TYPE_STRING, "TCP",
-	    
-	    NULL,
-	    /* OUT args */
-	    NULL);
 	if (error!=NULL)
 	{
-		g_printerr ("Error: %s\n", error->message);
+		g_printerr ("delete_port_mapping: Error: %s\n", error->message);
 		g_error_free (error);
 	}	
 
 	error=NULL;
 	/* poi aggiungo il nuovo */
-	g_printerr ("calling AddPortMapping for port %d to ip %s",port_to_open,internal_ip);
+	g_printerr ("calling AddPortMapping for port %d to ip %s\n",port_to_open,internal_ip);
 	add_port_mapping (proxy,
                   "",
                   port_to_open,
@@ -52,44 +45,16 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
                   "pidgin-sharedesk-port-mapping",
                   0,
                   &error);
-	/*gupnp_service_proxy_send_action (proxy,
-	    "AddPortMapping", &error,
+
 	
-	    "NewRemoteHost",
-	    G_TYPE_STRING, "",
-
-	    "NewExternalPort",
-	    G_TYPE_UINT, port_to_open,
-
-	    "NewProtocol",
-	    G_TYPE_STRING, "TCP",
-
-	    "NewInternalPort",
-	    G_TYPE_UINT, port_to_open,
-
-	    "NewInternalClient",
-	    G_TYPE_STRING, internal_ip,
-
-	    "NewEnabled",
-	    G_TYPE_BOOLEAN, TRUE,
-
-	    "NewPortMappingDescription",
-	    G_TYPE_STRING, "pidgin-sharedesk-port-mapping",
-
-	    "NewLeaseDuration",
-	    G_TYPE_UINT64, 0,
-
-	    
-	    NULL,
-	    
-	    NULL);*/
-
 	if (error == NULL) {
-		g_printerr ("port mapping %d added for %s",port_to_open,internal_ip);
+		g_printerr ("port mapping %d added for %s\n",port_to_open,internal_ip);
+		success=TRUE;
 	} else {
-		g_printerr ("Error: %s\n", error->message);
+		g_printerr ("add_port_mapping: Error: %s\n", error->message);
 		g_error_free (error);
 	}
+	callback_executed=TRUE;
 
 }
 
@@ -100,6 +65,7 @@ upnp_ask_external_ip_cb (GUPnPControlPoint *cp,
 {
 	GError *error = NULL;
 
+	g_printerr ("calling GetExternalIPAddress\n");
 	gupnp_service_proxy_send_action (proxy,
 	    /* Action name and error location */
 	    "GetExternalIPAddress", &error,
@@ -111,14 +77,13 @@ upnp_ask_external_ip_cb (GUPnPControlPoint *cp,
 	    NULL);
 
 	if (error == NULL) {
-		g_print ("External IP address is %s\n", ip);
-		//		g_free (ip);
+		g_printerr ("External IP address is %s\n", ip);
+		success=TRUE;
 	} else {
 		g_printerr ("Error: %s\n", error->message);
 		g_error_free (error);
 	}
-	/*	g_main_loop_quit (main_loop);*/
-
+	callback_executed=TRUE;
 }
 
 GUPnPControlPoint* upnp_get_control_point()
@@ -142,12 +107,36 @@ GUPnPControlPoint* upnp_get_control_point()
 	return cp;
 }
 
-void
-upnp_get_ip(char** outIp)
+void do_loop()
 {
-	ip=outIp;
-	GUPnPControlPoint *cp=upnp_get_control_point();
+	g_printerr ("do_loop()\n");
+	time_t t,t2,t3;
+	for (t3=t2=t=time(NULL);callback_executed==FALSE && t2-t<TIMEOUT ; t2=time(NULL))
+	{
+		if (t2-t3>=NOTIFY_INTERVAL)
+		{
+			g_printerr ("[t:%d]",t2-t3);
+			t3=time(NULL);
+		}
+		g_main_context_iteration(NULL,FALSE);	
+	}
+}
 
+void init()
+{
+	g_printerr ("init()\n");
+	callback_executed=FALSE;
+	success=FALSE;
+}
+
+gboolean upnp_get_ip(char** outIp)
+{
+	g_printerr ("upnp_get_ip(...)\n");
+	ip=outIp;
+
+	GUPnPControlPoint *cp=upnp_get_control_point();
+	init();
+	
 	/* The service-proxy-available signal is emitted when any services which match
 	 our target are found, so connect to it */
 	g_signal_connect (cp,
@@ -160,26 +149,24 @@ upnp_get_ip(char** outIp)
 
 	/* Enter the main loop. This will start the search and result in callbacks to
 	 callbacks. */
-	int i=0;
-	for (;*outIp==NULL||i<10;i++)
-		g_main_context_iteration(NULL,FALSE);	
+	do_loop();
 	
 	/* Clean up */
 	g_object_unref (cp);
 
-	return 0;
+	return callback_executed && success;
 }
 
 gboolean upnp_add_port_mapping(int port)
 {
-	GUPnPControlPoint *cp=upnp_get_control_point();
-	callback_executed=FALSE;
-
+	g_printerr ("upnp_add_port_mapping(%d)\n",port);
 	GUPnPContext *context;
 	context = gupnp_context_new (NULL, NULL, 0, NULL);
 	internal_ip=g_strdup (gupnp_context_get_host_ip (context));;
 	port_to_open=port;
 
+	GUPnPControlPoint *cp=upnp_get_control_point();
+	init();
 	
 	/* The service-proxy-available signal is emitted when any services which match
 	 our target are found, so connect to it */
@@ -193,13 +180,12 @@ gboolean upnp_add_port_mapping(int port)
 
 	/* Enter the main loop. This will start the search and result in callbacks to
 	 callbacks. */
-	int i=0;
-	for (;callback_executed==FALSE||i<10;i++)
-		g_main_context_iteration(NULL,FALSE);	
+	do_loop();
 	
 	/* Clean up */
 	g_object_unref (cp);
 
-	return callback_executed;
+	return callback_executed && success;
 };
+
 

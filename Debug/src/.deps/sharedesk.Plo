@@ -66,6 +66,8 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
   /usr/include/bits/endian.h /usr/include/bits/byteswap.h \
   /usr/include/sys/select.h /usr/include/bits/select.h \
   /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+  /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/libpurple/debug.h /usr/include/libpurple/plugin.h \
   /usr/include/glib-2.0/gmodule.h /usr/include/libpurple/signals.h \
   /usr/include/libpurple/value.h /usr/include/libpurple/pluginpref.h \
@@ -101,6 +103,7 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
   /usr/include/libpurple/whiteboard.h /usr/include/libpurple/log.h \
   /usr/include/libpurple/server.h /usr/include/libpurple/sslconn.h \
   /usr/include/libpurple/certificate.h /usr/include/libpurple/privacy.h \
+  /usr/include/libpurple/request.h \
   /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h
 
 /usr/include/glib-2.0/glib.h:
@@ -299,6 +302,14 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 
 /usr/include/alloca.h:
 
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
 /usr/include/libpurple/debug.h:
 
 /usr/include/libpurple/plugin.h:
@@ -406,5 +417,7 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 /usr/include/libpurple/certificate.h:
 
 /usr/include/libpurple/privacy.h:
+
+/usr/include/libpurple/request.h:
 
 /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h:
