@@ -1,16 +1,14 @@
 
 [Anjuta]
-Maximized=1
-Geometry=1680x993+0+32
+Geometry=1287x840+10+32
 
 [File Loader]
-Files=file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.c#35%%%file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h#19%%%file:///home/roby/Projects/pidgin-sharedesk/src/sharedesk.c#37
+Files=file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.c#35%%%file:///home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h#19%%%file:///home/roby/Projects/pidgin-sharedesk/src/sharedesk.c#51%%%file:///home/roby/Projects/pidgin-sharedesk/src/client.h#25%%%file:///home/roby/Projects/pidgin-sharedesk/src/client.c#13%%%file:///home/roby/Projects/pidgin-sharedesk/src/sharedesk.h#20%%%file:///home/roby/Projects/pidgin-sharedesk/src/server.h#25%%%file:///home/roby/Projects/pidgin-sharedesk/src/server.c#21
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
 
 [Execution]
-Program arguments=
 Program uri=file:///usr/local/bin/pidgin%%%file:///home/roby/Projects/pidgin-sharedesk/Debug/pidgin
 Run in terminal=2
 Working directories=file:///home/roby/Projects/pidgin-sharedesk

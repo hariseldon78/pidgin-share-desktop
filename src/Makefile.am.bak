@@ -20,7 +20,12 @@ lib_LTLIBRARIES = \
 libpidgin_sharedesk_la_SOURCES = \
 	sharedesk.c             \
 	upnp-functions.c             \
-	upnp-functions.h
+	upnp-functions.h             \
+	bindings.h             \
+	client.h             \
+	client.c             \
+	sharedesk.h             \
+	server.h
 	
 libpidgin_sharedesk_la_LDFLAGS= \
 	-lgssdp-1.0	\

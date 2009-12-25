@@ -131,6 +131,10 @@ void init()
 
 gboolean upnp_get_ip(char** outIp)
 {
+#if 0	
+	*outIp=purple_upnp_get_public_ip();
+	return TRUE;
+#endif
 	g_printerr ("upnp_get_ip(...)\n");
 	ip=outIp;
 
@@ -155,10 +159,16 @@ gboolean upnp_get_ip(char** outIp)
 	g_object_unref (cp);
 
 	return callback_executed && success;
+
 }
 
 gboolean upnp_add_port_mapping(int port)
 {
+#if 0	
+	purple_upnp_remove_port_mapping (port, "TCP", NULL, NULL);
+	purple_upnp_set_port_mapping (port, "TCP", NULL, NULL);
+	return TRUE;
+#endif	
 	g_printerr ("upnp_add_port_mapping(%d)\n",port);
 	GUPnPContext *context;
 	context = gupnp_context_new (NULL, NULL, 0, NULL);
@@ -186,6 +196,7 @@ gboolean upnp_add_port_mapping(int port)
 	g_object_unref (cp);
 
 	return callback_executed && success;
+
 };
 
 

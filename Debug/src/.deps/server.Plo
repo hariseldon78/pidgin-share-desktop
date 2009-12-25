@@ -1,5 +1,7 @@
-sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
-  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
+server.lo: /home/roby/Projects/pidgin-sharedesk/src/server.c \
+  /home/roby/Projects/pidgin-sharedesk/src/server.h \
+  /usr/include/libpurple/blist.h /usr/include/glib-2.0/glib.h \
+  /usr/include/glib-2.0/glib/galloca.h \
   /usr/include/glib-2.0/glib/gtypes.h \
   /usr/lib/glib-2.0/include/glibconfig.h \
   /usr/include/glib-2.0/glib/gmacros.h \
@@ -61,15 +63,7 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
   /usr/include/glib-2.0/glib/gtestutils.h \
   /usr/include/glib-2.0/glib/gthreadpool.h \
   /usr/include/glib-2.0/glib/gtimer.h /usr/include/glib-2.0/glib/gtree.h \
-  /usr/include/glib-2.0/glib/gurifuncs.h /usr/include/stdlib.h \
-  /usr/include/sys/types.h /usr/include/endian.h \
-  /usr/include/bits/endian.h /usr/include/bits/byteswap.h \
-  /usr/include/sys/select.h /usr/include/bits/select.h \
-  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
-  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
-  /usr/include/bits/confname.h /usr/include/getopt.h \
-  /usr/include/libpurple/debug.h /usr/include/libpurple/version.h \
-  /usr/include/libpurple/blist.h /usr/include/libpurple/account.h \
+  /usr/include/glib-2.0/glib/gurifuncs.h /usr/include/libpurple/account.h \
   /usr/include/glib-2.0/glib-object.h \
   /usr/include/glib-2.0/gobject/gboxed.h \
   /usr/include/glib-2.0/gobject/gtype.h \
@@ -97,17 +91,23 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
   /usr/include/wchar.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/libpurple/media.h \
   /usr/include/libpurple/util.h /usr/include/libpurple/xmlnode.h \
-  /usr/include/libpurple/notify.h /usr/include/libpurple/proxy.h \
-  /usr/include/libpurple/eventloop.h /usr/include/libpurple/roomlist.h \
-  /usr/include/libpurple/whiteboard.h /usr/include/libpurple/log.h \
-  /usr/include/libpurple/server.h /usr/include/libpurple/sslconn.h \
-  /usr/include/libpurple/certificate.h /usr/include/libpurple/privacy.h \
-  /usr/include/libpurple/request.h \
+  /usr/include/libpurple/notify.h /usr/include/stdlib.h \
+  /usr/include/sys/types.h /usr/include/endian.h \
+  /usr/include/bits/endian.h /usr/include/bits/byteswap.h \
+  /usr/include/sys/select.h /usr/include/bits/select.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/libpurple/proxy.h /usr/include/libpurple/eventloop.h \
+  /usr/include/libpurple/roomlist.h /usr/include/libpurple/whiteboard.h \
+  /usr/include/libpurple/log.h /usr/include/libpurple/server.h \
+  /usr/include/libpurple/sslconn.h /usr/include/libpurple/certificate.h \
+  /usr/include/libpurple/privacy.h \
   /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h \
   /usr/include/libpurple/account.h /usr/include/libpurple/plugin.h \
-  /home/roby/Projects/pidgin-sharedesk/src/client.h \
-  /home/roby/Projects/pidgin-sharedesk/src/server.h \
-  /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h
+  /usr/include/libpurple/network.h
+
+/home/roby/Projects/pidgin-sharedesk/src/server.h:
+
+/usr/include/libpurple/blist.h:
 
 /usr/include/glib-2.0/glib.h:
 
@@ -287,38 +287,6 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 
 /usr/include/glib-2.0/glib/gurifuncs.h:
 
-/usr/include/stdlib.h:
-
-/usr/include/sys/types.h:
-
-/usr/include/endian.h:
-
-/usr/include/bits/endian.h:
-
-/usr/include/bits/byteswap.h:
-
-/usr/include/sys/select.h:
-
-/usr/include/bits/select.h:
-
-/usr/include/sys/sysmacros.h:
-
-/usr/include/alloca.h:
-
-/usr/include/unistd.h:
-
-/usr/include/bits/posix_opt.h:
-
-/usr/include/bits/confname.h:
-
-/usr/include/getopt.h:
-
-/usr/include/libpurple/debug.h:
-
-/usr/include/libpurple/version.h:
-
-/usr/include/libpurple/blist.h:
-
 /usr/include/libpurple/account.h:
 
 /usr/include/glib-2.0/glib-object.h:
@@ -401,6 +369,24 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 
 /usr/include/libpurple/notify.h:
 
+/usr/include/stdlib.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/bits/byteswap.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/alloca.h:
+
 /usr/include/libpurple/proxy.h:
 
 /usr/include/libpurple/eventloop.h:
@@ -419,16 +405,10 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 
 /usr/include/libpurple/privacy.h:
 
-/usr/include/libpurple/request.h:
-
 /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h:
 
 /usr/include/libpurple/account.h:
 
 /usr/include/libpurple/plugin.h:
 
-/home/roby/Projects/pidgin-sharedesk/src/client.h:
-
-/home/roby/Projects/pidgin-sharedesk/src/server.h:
-
-/home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h:
+/usr/include/libpurple/network.h:
