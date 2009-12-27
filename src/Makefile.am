@@ -10,7 +10,8 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g
+	 -g\
+	 -DBUILD_TIME=\""`date`"\"
 
 EXTRA_DIST = $(ui_DATA)
 

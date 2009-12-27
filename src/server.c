@@ -75,14 +75,16 @@ start_connection(PurpleBlistNode *node)
 
 	/* sostituisco la porta nella stringa di comando */
 	GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
-	char* msg=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
+	char* command=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
 
-	purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",msg);
+	purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",command);
 	int server_pid=fork();
 	if (server_pid==0)
 	{
 		/* child process: eseguo il server */
-		system(msg);
+		gchar **splitted_command=g_strsplit(command," ",0);
+		execvp(splitted_command[0],splitted_command);
+		g_free(command);
 	}
 	else 
 	{
@@ -91,7 +93,6 @@ start_connection(PurpleBlistNode *node)
 
 		/* il plugin ora non deve far altro che aspettare la richiesta di chiusura */
 	}
-	g_free(msg);
 	g_free(port_regex);
 }
 

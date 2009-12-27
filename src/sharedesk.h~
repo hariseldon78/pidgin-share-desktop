@@ -50,6 +50,11 @@
 #define	TOOLTIP_USE_UPNP		"Use upnp for ip detection and port mapping"
 #define	DEFAULT_USE_UPNP		TRUE
 
+#define	PREF_USE_LIBPURPLE_UPNP		PREF_PREFIX "/use_libpurple_upnp"
+#define	LABEL_USE_LIBPURPLE_UPNP	"Use libpurple upnp implementation"
+#define	TOOLTIP_USE_LIBPURPLE_UPNP	"Use libpurple upnp implementation instead of libgupnp"
+#define	DEFAULT_USE_LIBPURPLE_UPNP	FALSE
+
 
 PurplePlugin *the_plugin;
 

@@ -127,6 +127,10 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 
 	frame = purple_plugin_pref_frame_new();
 
+	pref=purple_plugin_pref_new_with_label("Share desktop plugin\n\nbuild time: "BUILD_TIME);
+	purple_plugin_pref_frame_add(frame, pref);
+	
+
 	pref = purple_plugin_pref_new_with_name_and_label(PREF_SERVER_COMMAND_LINE,LABEL_SERVER_COMMAND_LINE);
 	purple_plugin_pref_frame_add(frame, pref);
 
@@ -135,9 +139,15 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 
 	pref = purple_plugin_pref_new_with_name_and_label(PREF_USE_UPNP,LABEL_USE_UPNP);
 	purple_plugin_pref_frame_add(frame, pref);
-	
+
 	pref = purple_plugin_pref_new_with_name_and_label(PREF_USE_LIBPURPLE_UPNP,LABEL_USE_LIBPURPLE_UPNP);
 	purple_plugin_pref_frame_add(frame, pref); 
+	
+//	pref = purple_plugin_pref_new_with_name_and_label(PREF_PREFIX "/use_upnp2","Use upnp2");
+//	purple_plugin_pref_frame_add(frame, pref);
+	
+//	pref = purple_plugin_pref_new_with_name_and_label(PREF_PREFIX "/sue_libpurple_upnp","Use libpurple ");
+//	purple_plugin_pref_frame_add(frame, pref); 
 	
 	pref = purple_plugin_pref_new_with_name_and_label(PREF_PORT,LABEL_PORT);
 	purple_plugin_pref_frame_add(frame, pref);
@@ -146,7 +156,6 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 	pref = purple_plugin_pref_new_with_name_and_label(PREF_,LABEL_);
 	purple_plugin_pref_frame_add(frame, pref); */
 
-	
 	return frame;
 }
 
@@ -257,7 +266,9 @@ init_plugin(PurplePlugin *plugin) {
 	purple_prefs_add_string	(PREF_SERVER_COMMAND_LINE, 	DEFAULT_SERVER_COMMAND_LINE	);
 	purple_prefs_add_string	(PREF_CLIENT_COMMAND_LINE, 	DEFAULT_CLIENT_COMMAND_LINE	);
 	purple_prefs_add_bool 	(PREF_USE_UPNP,			DEFAULT_USE_UPNP 		);
+//	purple_prefs_add_bool 	(PREF_PREFIX "/use_upnp2",TRUE);
 	purple_prefs_add_bool 	(PREF_USE_LIBPURPLE_UPNP,	DEFAULT_USE_LIBPURPLE_UPNP 	);
+//	purple_prefs_add_bool 	(PREF_PREFIX "/sue_libpurple_upnp",TRUE);
 	purple_prefs_add_string (PREF_PORT,			DEFAULT_PORT 			);
 	/*
 	purple_prefs_add_bool (PREF_,DEFAULT_ );

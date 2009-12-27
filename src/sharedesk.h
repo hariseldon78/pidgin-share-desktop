@@ -43,7 +43,7 @@
 #define PREF_PORT			PREF_PREFIX "/port"
 #define LABEL_PORT			"The connection port"
 #define TOOLTIP_PORT			"The vnc connection port"
-#define DEFAULT_PORT			"5900"
+#define DEFAULT_PORT			"5901"
 
 #define	PREF_USE_UPNP			PREF_PREFIX "/use_upnp"
 #define	LABEL_USE_UPNP			"Use upnp"

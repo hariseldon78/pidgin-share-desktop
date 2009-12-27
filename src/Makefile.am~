@@ -10,7 +10,8 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g
+	 -g\
+	 -DBUILD_TIME=\""date"\"
 
 EXTRA_DIST = $(ui_DATA)
 
@@ -18,10 +19,21 @@ lib_LTLIBRARIES = \
 	libpidgin-sharedesk.la
 
 libpidgin_sharedesk_la_SOURCES = \
-	sharedesk.c
+	sharedesk.c             \
+	upnp-functions.c             \
+	upnp-functions.h             \
+	bindings.h             \
+	client.h             \
+	client.c             \
+	sharedesk.h             \
+	server.h             \
+	server.c
 	
-libpidgin_sharedesk_la_LDFLAGS= 
-	
+libpidgin_sharedesk_la_LDFLAGS= \
+	-lgssdp-1.0	\
+	-lgupnp-1.0	\
+	-lsoup-2.4	\
+	-lxml2
 
 # Remove ui directory on uninstall
 uninstall-local:
