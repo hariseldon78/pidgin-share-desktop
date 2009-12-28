@@ -24,4 +24,4 @@
 void client_accept_connection();
 void client_handle_connection_request(char** req,PurpleAccount *account,char* sender);
 
-#endif // _CLIENT_H_
+#endif 

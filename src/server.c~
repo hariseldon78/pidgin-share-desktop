@@ -19,7 +19,12 @@
 
 #include "server.h"
 #include "sharedesk.h"
-#include "network.h"
+#include <network.h>
+#include <unistd.h>
+#include <debug.h>
+#include <upnp.h>
+#include "upnp-functions.h"
+
 
 PurpleValue *server_ip, *port;
 pid_t server_pid=0;
@@ -84,6 +89,7 @@ start_connection(PurpleBlistNode *node)
 		/* child process: eseguo il server */
 		gchar **splitted_command=g_strsplit(command," ",0);
 		execvp(splitted_command[0],splitted_command);
+		g_free(command);
 	}
 	else 
 	{
@@ -92,7 +98,6 @@ start_connection(PurpleBlistNode *node)
 
 		/* il plugin ora non deve far altro che aspettare la richiesta di chiusura */
 	}
-	g_free(command);
 	g_free(port_regex);
 }
 

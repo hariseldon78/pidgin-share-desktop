@@ -19,7 +19,12 @@
 
 #include "server.h"
 #include "sharedesk.h"
-#include "network.h"
+#include <network.h>
+#include <unistd.h>
+#include <debug.h>
+#include <upnp.h>
+#include "upnp-functions.h"
+
 
 PurpleValue *server_ip, *port;
 pid_t server_pid=0;
@@ -102,7 +107,7 @@ no_upnp(PurpleBlistNode *node)
 	char msg[100];
 	snprintf(msg,100,"You must manually open the port %d on the router, if any",atoi(purple_value_get_string(port)));
 	purple_notify_warning(the_plugin,"No upnp available","Port mapping",msg);
-	char* ip=purple_network_get_my_ip(-1);
+	const char* ip=purple_network_get_my_ip(-1);
 	purple_debug_misc(PLUGIN_ID,"purple_network_get_my_ip(-1)=\"%s\"\n",ip);
 	purple_value_set_string(server_ip,ip);
 	start_connection(node);
@@ -116,7 +121,7 @@ upnp_discovery_cb(gboolean success, gpointer data)
 		no_upnp((PurpleBlistNode *)data);
 	if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
 	{
-		char* ip=purple_upnp_get_public_ip();
+		const char* ip=purple_upnp_get_public_ip();
 		if (purple_network_ip_atoi(ip)==NULL)
 			no_upnp((PurpleBlistNode *)data);
 		purple_debug_misc(PLUGIN_ID,"purple_upnp_get_public_ip()=\"%s\"\n",ip);

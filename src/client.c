@@ -19,6 +19,9 @@
 
 #include "client.h"
 #include "sharedesk.h"
+#include <debug.h>
+#include <unistd.h>
+#include <request.h>
 
 void client_accept_connection()
 {
@@ -44,7 +47,9 @@ client_accept_connection_cb(void* _cp)
 
 		/* sostituisco la porta nella stringa di comando */
 		GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
-		char* cmd1=g_regex_replace(port_regex,cmd,-1,0,cp->port,0,NULL);
+		char s_port[10];
+		snprintf(s_port,10,"%d",cp->port);
+		char* cmd1=g_regex_replace(port_regex,cmd,-1,0,s_port,0,NULL);
 
 		GRegex *ip_regex=g_regex_new("[$]SERVER_IP",0,0,NULL);
 		char* cmd2=g_regex_replace(ip_regex,cmd1,-1,0,cp->ip,0,NULL);
@@ -105,7 +110,7 @@ client_handle_connection_request(char** splitted_command,PurpleAccount *account,
 	    msg,
 	    0,
 	    account,
-	    *sender,
+	    sender,
 	    NULL,
 	    cp,
 	    2,

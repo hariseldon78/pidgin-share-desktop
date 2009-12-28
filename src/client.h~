@@ -22,6 +22,6 @@
 #include <account.h>
 
 void client_accept_connection();
-void client_handle_connection_request(char** req,PurpleAccount *account);
+void client_handle_connection_request(char** req,PurpleAccount *account,char* sender);
 
 #endif // _CLIENT_H_

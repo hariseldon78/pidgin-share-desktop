@@ -25,4 +25,4 @@ void server_request_connection_cb(PurpleBlistNode *node, gpointer data);
 void server_unload();
 void server_load();
 
-#endif // _SERVER_H_
+#endif

@@ -102,7 +102,10 @@ client.lo: /home/roby/Projects/pidgin-sharedesk/src/client.c \
   /usr/include/libpurple/sslconn.h /usr/include/libpurple/certificate.h \
   /usr/include/libpurple/privacy.h \
   /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h \
-  /usr/include/libpurple/plugin.h
+  /usr/include/libpurple/plugin.h /usr/include/libpurple/debug.h \
+  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+  /usr/include/bits/confname.h /usr/include/getopt.h \
+  /usr/include/libpurple/request.h
 
 /home/roby/Projects/pidgin-sharedesk/src/client.h:
 
@@ -407,3 +410,15 @@ client.lo: /home/roby/Projects/pidgin-sharedesk/src/client.c \
 /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h:
 
 /usr/include/libpurple/plugin.h:
+
+/usr/include/libpurple/debug.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
+/usr/include/libpurple/request.h:

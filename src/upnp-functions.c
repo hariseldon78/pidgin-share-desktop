@@ -24,7 +24,7 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
                      "",
                      port_to_open,
                      "TCP",
-                     error);
+                     &error);
 
 	if (error!=NULL)
 	{
@@ -77,7 +77,7 @@ upnp_ask_external_ip_cb (GUPnPControlPoint *cp,
 	    NULL);
 
 	if (error == NULL) {
-		g_printerr ("External IP address is %s\n", ip);
+		g_printerr ("External IP address is %s\n", *ip);
 		success=TRUE;
 	} else {
 		g_printerr ("Error: %s\n", error->message);
@@ -92,7 +92,7 @@ GUPnPControlPoint* upnp_get_control_point()
 	GUPnPControlPoint *cp;
 
 	/* Required initialisation */
-	//	g_thread_init (NULL);
+	/*	g_thread_init (NULL);*/
 	g_type_init ();
 
 	/* Create a new GUPnP Context.  By here we are using the default GLib main
@@ -115,7 +115,7 @@ void do_loop()
 	{
 		if (t2-t3>=NOTIFY_INTERVAL)
 		{
-			g_printerr ("[t:%d]",t2-t3);
+			g_printerr ("[t:%d]",(int)(t2-t3));
 			t3=time(NULL);
 		}
 		g_main_context_iteration(NULL,FALSE);	
