@@ -70,35 +70,37 @@ send_connect_request_message(PurpleBlistNode *node)
 
 
 
-/* inizia la connessione quando tutti i dettagli sono disponibili */
+/* start the connection when all the details are available */
 void 
 start_connection(PurpleBlistNode *node)
 {
-	purple_debug_misc(PLUGIN_ID,"server_ip=\"%s\"\n",purple_value_get_string(server_ip));
-
-	const char* cmd=purple_prefs_get_string(PREF_SERVER_COMMAND_LINE);
-
-	/* sostituisco la porta nella stringa di comando */
-	GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
-	char* command=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
-
-	purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",command);
 	int server_pid=fork();
 	if (server_pid==0)
 	{
-		/* child process: eseguo il server */
+		/* child process: run the server */
+		purple_debug_misc(PLUGIN_ID,"server_ip=\"%s\"\n",purple_value_get_string(server_ip));
+
+		const char* cmd=purple_prefs_get_string(PREF_SERVER_COMMAND_LINE);
+
+		/* replace the port in the command string */
+		GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
+		char* command=g_regex_replace(port_regex,cmd,-1,0,purple_value_get_string(port),0,NULL);
+
+		purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",command);
 		gchar **splitted_command=g_strsplit(command," ",0);
+		
 		execvp(splitted_command[0],splitted_command);
+
 		g_free(command);
+		g_free(splitted_command);
+		g_free(port_regex);
 	}
 	else 
 	{
-		/* original process: invio la richiesta di connessione*/
+		/* original process: sent the connection request*/
 		send_connect_request_message(node);
 
-		/* il plugin ora non deve far altro che aspettare la richiesta di chiusura */
 	}
-	g_free(port_regex);
 }
 
 void 
@@ -145,7 +147,7 @@ upnp_discovery_cb(gboolean success, gpointer data)
 }
 
 
-/* callback richiamata quando l'utente clicca "share desktop" nel menu */
+/* callback called when the user click "share desktop" in menu */
 void
 server_request_connection_cb(PurpleBlistNode *node, gpointer data)
 {

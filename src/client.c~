@@ -57,8 +57,10 @@ client_accept_connection_cb(void* _cp)
 
 		purple_debug_misc(PLUGIN_ID,"client command=\"%s\"\n",cmd2);
 
-		system(cmd2);
+		gchar **splitted_command=g_strsplit(cmd2," ",0);
+		execvp(splitted_command[0],splitted_command);
 
+		g_free(splitted_command);
 		g_free(cmd2);
 		g_free(ip_regex);
 		g_free(cmd1);
@@ -110,7 +112,7 @@ client_handle_connection_request(char** splitted_command,PurpleAccount *account,
 	    msg,
 	    0,
 	    account,
-	    *sender,
+	    sender,
 	    NULL,
 	    cp,
 	    2,

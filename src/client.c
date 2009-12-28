@@ -30,22 +30,13 @@ void client_accept_connection()
 void
 client_accept_connection_cb(void* _cp)
 {
-	purple_debug_misc(PLUGIN_ID,"sharedesk_accept_connection_cb(...)\n");
-	connection_parameters *cp=(connection_parameters*)_cp;
-	/*	PurpleAccount* account=(PurpleAccount*)splitted_command[5];
-	 PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, splitted_command[6]);
-	 PurpleConvIm *im = purple_conversation_get_im_data(conv);
-	 const char* msg="sharedesk|accept_connection|"
-	 "\nThe buddy is accepting to share your desktop"
-	 "\n|||";
-
-	 purple_conv_im_send(im, msg); */
-
 	if (fork()==0)
 	{
+		purple_debug_misc(PLUGIN_ID,"sharedesk_accept_connection_cb(...)\n");
+		connection_parameters *cp=(connection_parameters*)_cp;
 		const char* cmd=purple_prefs_get_string(PREF_CLIENT_COMMAND_LINE);
 
-		/* sostituisco la porta nella stringa di comando */
+		/* replace the port in the command string */
 		GRegex *port_regex=g_regex_new("[$]PORT",0,0,NULL);
 		char s_port[10];
 		snprintf(s_port,10,"%d",cp->port);
@@ -57,8 +48,11 @@ client_accept_connection_cb(void* _cp)
 
 		purple_debug_misc(PLUGIN_ID,"client command=\"%s\"\n",cmd2);
 
-		system(cmd2);
+		/* run the client */
+		gchar **splitted_command=g_strsplit(cmd2," ",0);
+		execvp(splitted_command[0],splitted_command);
 
+		g_free(splitted_command);
 		g_free(cmd2);
 		g_free(ip_regex);
 		g_free(cmd1);
@@ -95,7 +89,7 @@ client_handle_connection_request(char** splitted_command,PurpleAccount *account,
 	 5,6,7: unused
 	 */
 	char msg[100];
-	snprintf(msg,100,"Your buddy %s is asking to you to share his desktop. Accept?",sender);
+	snprintf(msg,100,"Your buddy %s is asking to share his desktop with you . Accept?",sender);
 
 	connection_parameters *cp=(connection_parameters*)g_malloc(sizeof(connection_parameters));
 	cp->ip=g_strndup(splitted_command[2],17);

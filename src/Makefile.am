@@ -15,8 +15,8 @@ AM_CFLAGS =\
 
 EXTRA_DIST = $(ui_DATA)
 
-lib_LTLIBRARIES = \
-	libpidgin-sharedesk.la
+plugindir = 			${libdir}/pidgin
+plugin_LTLIBRARIES = 		libpidgin-sharedesk.la
 
 libpidgin_sharedesk_la_SOURCES = \
 	sharedesk.c             \
