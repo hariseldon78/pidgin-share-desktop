@@ -16,7 +16,11 @@
 #ifndef UPNP_FUNCTIONS_H
 #define UPNP_FUNCTIONS_H
 
-gboolean upnp_get_ip(char** outIp);
-gboolean upnp_add_port_mapping(int port);
+
+void 		upnp_load();
+gboolean 	upnp_is_available();
+gboolean 	upnp_get_ip(char** outIp);
+gboolean 	upnp_add_port_mapping(int port);
+
 
 #endif

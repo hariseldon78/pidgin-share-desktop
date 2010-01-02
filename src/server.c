@@ -1,4 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*- */
+/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*- */
 /*
  * pidgin-sharedesk
  * Copyright (C) Roberto Previdi 2009 <hariseldon78@gmail.com>
@@ -19,15 +19,17 @@
 
 #include "server.h"
 #include "sharedesk.h"
+#include "sd_prefs.h"
 #include <network.h>
 #include <unistd.h>
 #include <debug.h>
-#include <upnp.h>
 #include "upnp-functions.h"
 
 
 PurpleValue *server_ip, *port;
 pid_t server_pid=0;
+
+PurpleBlistNode *client_node;
 
 void
 dont_do_it_cb(PurpleBlistNode *node, const char *ignore)
@@ -38,11 +40,11 @@ dont_do_it_cb(PurpleBlistNode *node, const char *ignore)
 
 
 void 
-send_connect_request_message(PurpleBlistNode *node)
+send_connect_request_message()
 {
-	PurpleAccount* account=purple_buddy_get_account(PURPLE_BUDDY(node));
+	PurpleAccount* account=purple_buddy_get_account(PURPLE_BUDDY(client_node));
 
-	PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, purple_buddy_get_name (PURPLE_BUDDY(node)));
+	PurpleConversation *conv=purple_conversation_new (PURPLE_CONV_TYPE_IM, account, purple_buddy_get_name (PURPLE_BUDDY(client_node)));
 	PurpleConvIm *im = purple_conversation_get_im_data(conv);
 
 	const char* remote_message="sharedesk|request_connection|$SERVER_IP|$PORT|"
@@ -72,7 +74,7 @@ send_connect_request_message(PurpleBlistNode *node)
 
 /* start the connection when all the details are available */
 void 
-start_connection(PurpleBlistNode *node)
+start_direct_connection()
 {
 	int server_pid=fork();
 	if (server_pid==0)
@@ -88,7 +90,7 @@ start_connection(PurpleBlistNode *node)
 
 		purple_debug_misc(PLUGIN_ID,"server command=\"%s\"\n",command);
 		gchar **splitted_command=g_strsplit(command," ",0);
-		
+
 		execvp(splitted_command[0],splitted_command);
 
 		g_free(command);
@@ -98,13 +100,12 @@ start_connection(PurpleBlistNode *node)
 	else 
 	{
 		/* original process: sent the connection request*/
-		send_connect_request_message(node);
+		send_connect_request_message();
 
 	}
 }
 
-void 
-no_upnp(PurpleBlistNode *node)
+static void no_upnp()
 {
 	char msg[100];
 	snprintf(msg,100,"You must manually open the port %d on the router, if any",atoi(purple_value_get_string(port)));
@@ -112,38 +113,26 @@ no_upnp(PurpleBlistNode *node)
 	const char* ip=purple_network_get_my_ip(-1);
 	purple_debug_misc(PLUGIN_ID,"purple_network_get_my_ip(-1)=\"%s\"\n",ip);
 	purple_value_set_string(server_ip,ip);
-	start_connection(node);
+	start_direct_connection();
 }
 
-void 
-upnp_discovery_cb(gboolean success, gpointer data)
+void upnp_discovery_cb(gboolean success, gpointer data)
 {
 	purple_notify_info(the_plugin,"Debug","Upnp discovery",success?"Ok!":"Failed!");
 	if (!success)
-		no_upnp((PurpleBlistNode *)data);
-	if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
-	{
-		const char* ip=purple_upnp_get_public_ip();
-		if (purple_network_ip_atoi(ip)==NULL)
-			no_upnp((PurpleBlistNode *)data);
-		purple_debug_misc(PLUGIN_ID,"purple_upnp_get_public_ip()=\"%s\"\n",ip);
-		purple_value_set_string(server_ip,ip);
+		no_upnp();
+
+	char *ip;
+	if (!upnp_get_ip(&ip))
+		no_upnp();
+	purple_debug_misc(PLUGIN_ID,"upnp_get_ip()=\"%s\"\n",ip);
 	
-		purple_upnp_remove_port_mapping (atoi(purple_value_get_string(port)), "TCP", NULL, NULL);
-		purple_upnp_set_port_mapping (atoi(purple_value_get_string(port)), "TCP", NULL, NULL);
-	}
-	else
-	{
-		char **ip;
-		if (!upnp_get_ip(ip))
-			no_upnp((PurpleBlistNode *)data);
-		purple_debug_misc(PLUGIN_ID,"upnp_get_ip()=\"%s\"\n",*ip);
-		purple_value_set_string(server_ip,*ip);
-		
-		if (!upnp_add_port_mapping(atoi(purple_value_get_string(port))))
-			no_upnp((PurpleBlistNode *)data);
-	}
-	start_connection((PurpleBlistNode *)data);
+	purple_value_set_string(server_ip,ip);
+
+	if (!upnp_add_port_mapping(atoi(purple_value_get_string(port))))
+		no_upnp();
+
+	start_direct_connection();
 }
 
 
@@ -152,20 +141,15 @@ void
 server_request_connection_cb(PurpleBlistNode *node, gpointer data)
 {
 	purple_value_set_string(port,purple_prefs_get_string(PREF_PORT));
+	client_node=node;
 
-	if (purple_prefs_get_bool(PREF_USE_UPNP))
+	if (upnp_is_available())
 	{
-		if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
-		{
-			purple_upnp_init();
-			purple_upnp_discover (upnp_discovery_cb,(gpointer)node);
-		}
-		else
-			upnp_discovery_cb(TRUE,(gpointer)node);
+		upnp_discovery_cb(TRUE,NULL);
 	}
 	else
 	{
-		no_upnp(node);
+		no_upnp();
 	}
 }
 

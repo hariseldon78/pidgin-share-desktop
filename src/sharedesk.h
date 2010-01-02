@@ -17,7 +17,7 @@
 #ifndef SHAREDESK_H
 #define SHAREDESK_H
 #include <account.h>
-#include "plugin.h"
+#include <plugin.h>
 
 #define PLUGIN_ID			"core-hariseldon78-sharedesk"
 #define PLUGIN_NAME			"Share Desktop"
@@ -28,32 +28,6 @@
 #define PLUGIN_VERSION			"0.1"
 #define PLUGIN_WEBSITE			"http://"
 
-#define	PREF_PREFIX			"/plugins/core/" PLUGIN_ID
-
-#define	PREF_SERVER_COMMAND_LINE	PREF_PREFIX "/server_command_line"
-#define	LABEL_SERVER_COMMAND_LINE	"Vnc server command line"
-#define	TOOLTIP_SERVER_COMMAND_LINE	"Vnc server command line"
-#define	DEFAULT_SERVER_COMMAND_LINE	"x11vnc -shared -rfbport $PORT"
-
-#define	PREF_CLIENT_COMMAND_LINE	PREF_PREFIX "/client_command_line"
-#define	LABEL_CLIENT_COMMAND_LINE	"Vnc client command line"
-#define	TOOLTIP_CLIENT_COMMAND_LINE	"Vnc client command line"
-#define	DEFAULT_CLIENT_COMMAND_LINE	"vncviewer $SERVER_IP::$PORT"
-
-#define PREF_PORT			PREF_PREFIX "/port"
-#define LABEL_PORT			"The connection port"
-#define TOOLTIP_PORT			"The vnc connection port"
-#define DEFAULT_PORT			"5901"
-
-#define	PREF_USE_UPNP			PREF_PREFIX "/use_upnp"
-#define	LABEL_USE_UPNP			"Use upnp"
-#define	TOOLTIP_USE_UPNP		"Use upnp for ip detection and port mapping"
-#define	DEFAULT_USE_UPNP		TRUE
-
-#define	PREF_USE_LIBPURPLE_UPNP		PREF_PREFIX "/use_libpurple_upnp"
-#define	LABEL_USE_LIBPURPLE_UPNP	"Use libpurple upnp implementation"
-#define	TOOLTIP_USE_LIBPURPLE_UPNP	"Use libpurple upnp implementation instead of libgupnp"
-#define	DEFAULT_USE_LIBPURPLE_UPNP	FALSE
 
 
 PurplePlugin *the_plugin;

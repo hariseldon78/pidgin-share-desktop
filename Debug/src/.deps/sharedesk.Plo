@@ -107,7 +107,9 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
   /usr/include/libpurple/account.h /usr/include/libpurple/plugin.h \
   /home/roby/Projects/pidgin-sharedesk/src/client.h \
   /home/roby/Projects/pidgin-sharedesk/src/server.h \
-  /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h
+  /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h \
+  /home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h \
+  /usr/include/libpurple/pluginpref.h
 
 /usr/include/glib-2.0/glib.h:
 
@@ -432,3 +434,7 @@ sharedesk.lo: /home/roby/Projects/pidgin-sharedesk/src/sharedesk.c \
 /home/roby/Projects/pidgin-sharedesk/src/server.h:
 
 /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h:
+
+/home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h:
+
+/usr/include/libpurple/pluginpref.h:

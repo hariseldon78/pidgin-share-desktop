@@ -69,7 +69,7 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 libpidgin_sharedesk_la_LIBADD =
 am_libpidgin_sharedesk_la_OBJECTS = sharedesk.lo upnp-functions.lo \
-	client.lo server.lo
+	client.lo server.lo sd_prefs.lo
 libpidgin_sharedesk_la_OBJECTS = $(am_libpidgin_sharedesk_la_OBJECTS)
 libpidgin_sharedesk_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -271,7 +271,9 @@ libpidgin_sharedesk_la_SOURCES = \
 	client.c             \
 	sharedesk.h             \
 	server.h             \
-	server.c
+	server.c             \
+	sd_prefs.c             \
+	sd_prefs.h
 
 libpidgin_sharedesk_la_LDFLAGS = \
 	-lgssdp-1.0	\
@@ -354,6 +356,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/client.Plo
+include ./$(DEPDIR)/sd_prefs.Plo
 include ./$(DEPDIR)/server.Plo
 include ./$(DEPDIR)/sharedesk.Plo
 include ./$(DEPDIR)/upnp-functions.Plo

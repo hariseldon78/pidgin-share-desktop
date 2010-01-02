@@ -24,18 +24,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "debug.h"
-#include "version.h"
-#include "blist.h"
-#include "request.h"
+#include <debug.h>
+#include <version.h>
+#include <blist.h>
+#include <request.h>
 
 #include "sharedesk.h"
 #include "client.h"
 #include "server.h"
 #include "upnp-functions.h"
+#include "sd_prefs.h"
 
 
-
+extern PurplePluginUiInfo prefs_info;
 
 
 
@@ -118,60 +119,6 @@ plugin_unload(PurplePlugin *plugin)
 
 
 
-/* finestra presentata per configurare il plugin */
-static PurplePluginPrefFrame *
-get_plugin_pref_frame(PurplePlugin *plugin)
-{
-	PurplePluginPrefFrame *frame;
-	PurplePluginPref *pref;
-
-	frame = purple_plugin_pref_frame_new();
-
-	pref=purple_plugin_pref_new_with_label("Share desktop plugin\n\nbuild time: "BUILD_TIME);
-	purple_plugin_pref_frame_add(frame, pref);
-	
-
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_SERVER_COMMAND_LINE,LABEL_SERVER_COMMAND_LINE);
-	purple_plugin_pref_frame_add(frame, pref);
-
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_CLIENT_COMMAND_LINE,LABEL_CLIENT_COMMAND_LINE);
-	purple_plugin_pref_frame_add(frame, pref);
-
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_USE_UPNP,LABEL_USE_UPNP);
-	purple_plugin_pref_frame_add(frame, pref);
-
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_USE_LIBPURPLE_UPNP,LABEL_USE_LIBPURPLE_UPNP);
-	purple_plugin_pref_frame_add(frame, pref); 
-	
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_PORT,LABEL_PORT);
-	purple_plugin_pref_frame_add(frame, pref);
-
-/*
-	pref = purple_plugin_pref_new_with_name_and_label(PREF_,LABEL_);
-	purple_plugin_pref_frame_add(frame, pref); */
-
-	return frame;
-}
-
-static PurplePluginUiInfo prefs_info = {
-	get_plugin_pref_frame,
-	0,
-	NULL,
-
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-
-
-
-
-
-
-
 
 
 /* callback richiamata quando pidgin sta costruendo il menu di un buddy */
@@ -199,6 +146,8 @@ sharedesk_extended_menu_cb(PurpleBlistNode *node, GList **m)
 static gboolean
 plugin_load(PurplePlugin *plugin)
 {
+	prefs_init();
+	
 	/* leggo i messaggi in arrivo per cercare un avviso di connessione*/
 	purple_signal_connect(purple_conversations_get_handle(), "receiving-im-msg",
 	    plugin, PURPLE_CALLBACK(receiving_im_cb),NULL);
@@ -207,8 +156,7 @@ plugin_load(PurplePlugin *plugin)
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-extended-menu",
 	    plugin, PURPLE_CALLBACK(sharedesk_extended_menu_cb), NULL);
 
-	/* inizializzo le opzioni */
-
+	upnp_load();
 	server_load();
 
 	return TRUE;
@@ -224,7 +172,7 @@ static PurplePluginInfo info =
 	NULL,					/* ui requirement		*/
 	0,					/* flags				*/
 	NULL,					/* dependencies			*/
-	PURPLE_PRIORITY_DEFAULT,			/* priority				*/
+	PURPLE_PRIORITY_DEFAULT,		/* priority				*/
 
 	PLUGIN_ID,				/* plugin id			*/
 	PLUGIN_NAME,				/* name					*/
@@ -255,17 +203,9 @@ init_plugin(PurplePlugin *plugin) {
 
 	/* per le notify */
 	the_plugin=plugin;
-
-	purple_prefs_add_none	(PREF_PREFIX);
-	purple_prefs_add_string	(PREF_SERVER_COMMAND_LINE, 	DEFAULT_SERVER_COMMAND_LINE	);
-	purple_prefs_add_string	(PREF_CLIENT_COMMAND_LINE, 	DEFAULT_CLIENT_COMMAND_LINE	);
-	purple_prefs_add_bool 	(PREF_USE_UPNP,			DEFAULT_USE_UPNP 		);
-	purple_prefs_add_bool 	(PREF_USE_LIBPURPLE_UPNP,	DEFAULT_USE_LIBPURPLE_UPNP 	);
-	purple_prefs_add_string (PREF_PORT,			DEFAULT_PORT 			);
+	
 	/*
-	purple_prefs_add_bool (PREF_,DEFAULT_ );
 	 gupnp_proxy=NULL;
 	 gupnp_init();*/
-
 }
 PURPLE_INIT_PLUGIN(PLUGIN_STATIC_NAME, init_plugin, info)

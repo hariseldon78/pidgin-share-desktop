@@ -27,7 +27,9 @@ libpidgin_sharedesk_la_SOURCES = \
 	client.c             \
 	sharedesk.h             \
 	server.h             \
-	server.c
+	server.c             \
+	sd_prefs.c             \
+	sd_prefs.h
 	
 libpidgin_sharedesk_la_LDFLAGS= \
 	-lgssdp-1.0	\

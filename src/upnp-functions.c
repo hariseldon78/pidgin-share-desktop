@@ -1,15 +1,23 @@
 #include <libgupnp/gupnp-control-point.h>
-#include "bindings.h"
 
-#define TIMEOUT 		100000
+#include <upnp.h>
+#include <debug.h>
+#include <network.h>
+
+#include "bindings.h"
+#include "sd_prefs.h"
+
+#define TIMEOUT 		10
 #define NOTIFY_INTERVAL 	1
 #define PORT_MAPPING_TTL_SEC 	1800
 
-char **ip = NULL;
+static char **ip = NULL;
 
 char *internal_ip;
 int port_to_open;
 gboolean callback_executed,success;
+
+gboolean upnp_available=FALSE, upnp_searched=FALSE;
 
 static void
 upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
@@ -18,7 +26,7 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
 {
 	GError *error = NULL;
 	
-	g_printerr ("calling DeletePortMapping for port %d \n",port_to_open);
+	purple_debug_misc(PLUGIN_ID,"calling DeletePortMapping for port %d \n",port_to_open);
 	/* prima elimino il vecchio port mapping */
 	delete_port_mapping (proxy,
                      "",
@@ -28,13 +36,13 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
 
 	if (error!=NULL)
 	{
-		g_printerr ("delete_port_mapping: Error: %s\n", error->message);
+		purple_debug_misc(PLUGIN_ID,"delete_port_mapping: Error: %s\n", error->message);
 		g_error_free (error);
 	}	
 
 	error=NULL;
 	/* poi aggiungo il nuovo */
-	g_printerr ("calling AddPortMapping for port %d to ip %s\n",port_to_open,internal_ip);
+	purple_debug_misc(PLUGIN_ID,"calling AddPortMapping for port %d to ip %s\n",port_to_open,internal_ip);
 	add_port_mapping (proxy,
                   "",
                   port_to_open,
@@ -48,10 +56,10 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
 
 	
 	if (error == NULL) {
-		g_printerr ("port mapping %d added for %s\n",port_to_open,internal_ip);
+		purple_debug_misc(PLUGIN_ID,"port mapping %d added for %s\n",port_to_open,internal_ip);
 		success=TRUE;
 	} else {
-		g_printerr ("add_port_mapping: Error: %s\n", error->message);
+		purple_debug_misc(PLUGIN_ID,"add_port_mapping: Error: %s\n", error->message);
 		g_error_free (error);
 	}
 	callback_executed=TRUE;
@@ -59,13 +67,12 @@ upnp_add_port_mapping_cb (GUPnPControlPoint *cp,
 }
 
 static void
-upnp_ask_external_ip_cb (GUPnPControlPoint *cp,
+gupnp_ask_external_ip_cb (GUPnPControlPoint *cp,
     GUPnPServiceProxy *proxy,
     gpointer           userdata)
 {
 	GError *error = NULL;
-
-	g_printerr ("calling GetExternalIPAddress\n");
+	purple_debug_misc(PLUGIN_ID,"calling GetExternalIPAddress\n");
 	gupnp_service_proxy_send_action (proxy,
 	    /* Action name and error location */
 	    "GetExternalIPAddress", &error,
@@ -77,16 +84,16 @@ upnp_ask_external_ip_cb (GUPnPControlPoint *cp,
 	    NULL);
 
 	if (error == NULL) {
-		g_printerr ("External IP address is %s\n", *ip);
+		purple_debug_misc(PLUGIN_ID,"External IP address is %s\n", *ip);
 		success=TRUE;
 	} else {
-		g_printerr ("Error: %s\n", error->message);
+		purple_debug_misc(PLUGIN_ID,"Error: %s\n", error->message);
 		g_error_free (error);
 	}
 	callback_executed=TRUE;
 }
 
-GUPnPControlPoint* upnp_get_control_point()
+static GUPnPControlPoint* upnp_get_control_point()
 {
 	GUPnPContext *context;
 	GUPnPControlPoint *cp;
@@ -107,35 +114,31 @@ GUPnPControlPoint* upnp_get_control_point()
 	return cp;
 }
 
-void do_loop()
+static void do_loop()
 {
-	g_printerr ("do_loop()\n");
+	purple_debug_misc(PLUGIN_ID,"do_loop()\n");
 	time_t t,t2,t3;
 	for (t3=t2=t=time(NULL);callback_executed==FALSE && t2-t<TIMEOUT ; t2=time(NULL))
 	{
 		if (t2-t3>=NOTIFY_INTERVAL)
 		{
-			g_printerr ("[t:%d]",(int)(t2-t3));
+			purple_debug_misc(PLUGIN_ID,"[t:%d]\n",(int)(t2-t3));
 			t3=time(NULL);
 		}
 		g_main_context_iteration(NULL,FALSE);	
 	}
 }
 
-void init()
+static void init()
 {
-	g_printerr ("init()\n");
+	purple_debug_misc(PLUGIN_ID,"init()\n");
 	callback_executed=FALSE;
 	success=FALSE;
 }
 
-gboolean upnp_get_ip(char** outIp)
+static gboolean gupnp_get_ip(char** outIp)
 {
-#if 0	
-	*outIp=purple_upnp_get_public_ip();
-	return TRUE;
-#endif
-	g_printerr ("upnp_get_ip(...)\n");
+	purple_debug_misc(PLUGIN_ID,"gupnp_get_ip(...)\n");
 	ip=outIp;
 
 	GUPnPControlPoint *cp=upnp_get_control_point();
@@ -145,7 +148,7 @@ gboolean upnp_get_ip(char** outIp)
 	 our target are found, so connect to it */
 	g_signal_connect (cp,
 	    "service-proxy-available",
-	    G_CALLBACK (upnp_ask_external_ip_cb),
+	    G_CALLBACK (gupnp_ask_external_ip_cb),
 	    NULL);
 
 	/* Tell the Control Point to start searching */
@@ -154,6 +157,7 @@ gboolean upnp_get_ip(char** outIp)
 	/* Enter the main loop. This will start the search and result in callbacks to
 	 callbacks. */
 	do_loop();
+	purple_debug_misc(PLUGIN_ID,"gupnp_get_ip(...)->loop finished\n");
 	
 	/* Clean up */
 	g_object_unref (cp);
@@ -162,14 +166,9 @@ gboolean upnp_get_ip(char** outIp)
 
 }
 
-gboolean upnp_add_port_mapping(int port)
+static gboolean gupnp_add_port_mapping(int port)
 {
-#if 0	
-	purple_upnp_remove_port_mapping (port, "TCP", NULL, NULL);
-	purple_upnp_set_port_mapping (port, "TCP", NULL, NULL);
-	return TRUE;
-#endif	
-	g_printerr ("upnp_add_port_mapping(%d)\n",port);
+	purple_debug_misc(PLUGIN_ID,"gupnp_add_port_mapping(%d)\n",port);
 	GUPnPContext *context;
 	context = gupnp_context_new (NULL, NULL, 0, NULL);
 	internal_ip=g_strdup (gupnp_context_get_host_ip (context));;
@@ -197,6 +196,84 @@ gboolean upnp_add_port_mapping(int port)
 
 	return callback_executed && success;
 
+};
+static void gupnp_discovery_cb (GUPnPControlPoint *cp, GUPnPServiceProxy *proxy, gpointer userdata)
+{
+	purple_debug_misc(PLUGIN_ID,"gupnp_discovery_cb(...)\n");
+	upnp_searched=TRUE;
+	upnp_available=TRUE;
+	callback_executed=TRUE;
+};
+
+static void gupnp_discover()
+{
+	GUPnPContext *context;
+	context = gupnp_context_new (NULL, NULL, 0, NULL);
+	GUPnPControlPoint *cp=upnp_get_control_point();
+
+	g_signal_connect (cp,
+	    "service-proxy-available",
+	    G_CALLBACK (gupnp_discovery_cb),
+	    NULL);
+
+	init();
+	
+	gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
+	do_loop();
+	upnp_searched=TRUE;
+
+	g_object_unref (cp);
+	g_object_unref (context);
+};
+
+static void purple_upnp_discovery_cb(gboolean success, gpointer data)
+{
+	upnp_searched=TRUE;
+	upnp_available=success;
+	callback_executed=TRUE;
+};
+
+gboolean upnp_get_ip(char** outIp)
+{
+	purple_debug_misc(PLUGIN_ID,"upnp_get_ip(...)\n");
+	if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
+	{
+		*outIp=purple_upnp_get_public_ip();
+		return purple_network_ip_atoi(*outIp)!=NULL;
+	}
+	else
+		return gupnp_get_ip(outIp);
+};
+
+gboolean upnp_add_port_mapping(int port)
+{
+	purple_debug_misc(PLUGIN_ID,"upnp_add_port_mapping(%d)\n",port);
+	if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
+	{
+		purple_upnp_remove_port_mapping (port, "TCP", NULL, NULL);
+		purple_upnp_set_port_mapping (port, "TCP", NULL, NULL);
+		return TRUE;
+	}
+	else
+		return gupnp_add_port_mapping(port);
+	
+};
+
+void upnp_load()
+{
+	purple_debug_misc(PLUGIN_ID,"upnp_load()\n");
+
+	if (purple_prefs_get_bool(PREF_USE_UPNP))
+	{
+		if (purple_prefs_get_bool(PREF_USE_LIBPURPLE_UPNP))
+			purple_upnp_discover (&purple_upnp_discovery_cb, NULL);
+		else
+			gupnp_discover();
+	}
+};
+gboolean upnp_is_available()
+{
+	return upnp_searched && upnp_available;
 };
 
 

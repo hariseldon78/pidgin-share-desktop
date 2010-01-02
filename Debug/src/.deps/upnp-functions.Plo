@@ -125,6 +125,8 @@ upnp-functions.lo:  \
   /usr/include/gupnp-1.0/libgupnp/gupnp-service-introspection.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp-service-proxy.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp-error.h \
+  /usr/include/libpurple/upnp.h /usr/include/libpurple/debug.h \
+  /usr/include/libpurple/network.h \
   /home/roby/Projects/pidgin-sharedesk/src/bindings.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp-context-manager.h \
@@ -134,7 +136,25 @@ upnp-functions.lo:  \
   /usr/include/gupnp-1.0/libgupnp/gupnp-root-device.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp-xml-doc.h \
   /usr/include/gupnp-1.0/libgupnp/gupnp-service.h \
-  /usr/include/gupnp-1.0/libgupnp/gupnp-types.h
+  /usr/include/gupnp-1.0/libgupnp/gupnp-types.h \
+  /home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h \
+  /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h \
+  /usr/include/libpurple/account.h /usr/include/libpurple/connection.h \
+  /usr/include/libpurple/account.h /usr/include/libpurple/plugin.h \
+  /usr/include/glib-2.0/gmodule.h /usr/include/libpurple/signals.h \
+  /usr/include/libpurple/value.h /usr/include/libpurple/pluginpref.h \
+  /usr/include/libpurple/prefs.h /usr/include/libpurple/status.h \
+  /usr/include/libpurple/blist.h /usr/include/libpurple/buddyicon.h \
+  /usr/include/libpurple/imgstore.h /usr/include/libpurple/prpl.h \
+  /usr/include/libpurple/conversation.h /usr/include/libpurple/log.h \
+  /usr/include/libpurple/server.h /usr/include/libpurple/ft.h \
+  /usr/include/libpurple/media.h /usr/include/libpurple/util.h \
+  /usr/include/libpurple/xmlnode.h /usr/include/libpurple/notify.h \
+  /usr/include/libpurple/proxy.h /usr/include/libpurple/eventloop.h \
+  /usr/include/libpurple/roomlist.h /usr/include/libpurple/whiteboard.h \
+  /usr/include/libpurple/sslconn.h /usr/include/libpurple/certificate.h \
+  /usr/include/libpurple/privacy.h /usr/include/libpurple/plugin.h \
+  /usr/include/libpurple/pluginpref.h
 
 /usr/include/gupnp-1.0/libgupnp/gupnp-control-point.h:
 
@@ -464,6 +484,12 @@ upnp-functions.lo:  \
 
 /usr/include/gupnp-1.0/libgupnp/gupnp-error.h:
 
+/usr/include/libpurple/upnp.h:
+
+/usr/include/libpurple/debug.h:
+
+/usr/include/libpurple/network.h:
+
 /home/roby/Projects/pidgin-sharedesk/src/bindings.h:
 
 /usr/include/gupnp-1.0/libgupnp/gupnp.h:
@@ -483,3 +509,69 @@ upnp-functions.lo:  \
 /usr/include/gupnp-1.0/libgupnp/gupnp-service.h:
 
 /usr/include/gupnp-1.0/libgupnp/gupnp-types.h:
+
+/home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h:
+
+/home/roby/Projects/pidgin-sharedesk/src/sharedesk.h:
+
+/usr/include/libpurple/account.h:
+
+/usr/include/libpurple/connection.h:
+
+/usr/include/libpurple/account.h:
+
+/usr/include/libpurple/plugin.h:
+
+/usr/include/glib-2.0/gmodule.h:
+
+/usr/include/libpurple/signals.h:
+
+/usr/include/libpurple/value.h:
+
+/usr/include/libpurple/pluginpref.h:
+
+/usr/include/libpurple/prefs.h:
+
+/usr/include/libpurple/status.h:
+
+/usr/include/libpurple/blist.h:
+
+/usr/include/libpurple/buddyicon.h:
+
+/usr/include/libpurple/imgstore.h:
+
+/usr/include/libpurple/prpl.h:
+
+/usr/include/libpurple/conversation.h:
+
+/usr/include/libpurple/log.h:
+
+/usr/include/libpurple/server.h:
+
+/usr/include/libpurple/ft.h:
+
+/usr/include/libpurple/media.h:
+
+/usr/include/libpurple/util.h:
+
+/usr/include/libpurple/xmlnode.h:
+
+/usr/include/libpurple/notify.h:
+
+/usr/include/libpurple/proxy.h:
+
+/usr/include/libpurple/eventloop.h:
+
+/usr/include/libpurple/roomlist.h:
+
+/usr/include/libpurple/whiteboard.h:
+
+/usr/include/libpurple/sslconn.h:
+
+/usr/include/libpurple/certificate.h:
+
+/usr/include/libpurple/privacy.h:
+
+/usr/include/libpurple/plugin.h:
+
+/usr/include/libpurple/pluginpref.h:

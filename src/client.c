@@ -19,6 +19,7 @@
 
 #include "client.h"
 #include "sharedesk.h"
+#include "sd_prefs.h"
 #include <debug.h>
 #include <unistd.h>
 #include <request.h>

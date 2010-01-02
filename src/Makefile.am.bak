@@ -10,12 +10,13 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g
+	 -g\
+	 -DBUILD_TIME=\""`date`"\"
 
 EXTRA_DIST = $(ui_DATA)
 
-lib_LTLIBRARIES = \
-	libpidgin-sharedesk.la
+plugindir = 			${libdir}/pidgin
+plugin_LTLIBRARIES = 		libpidgin-sharedesk.la
 
 libpidgin_sharedesk_la_SOURCES = \
 	sharedesk.c             \
@@ -25,7 +26,9 @@ libpidgin_sharedesk_la_SOURCES = \
 	client.h             \
 	client.c             \
 	sharedesk.h             \
-	server.h
+	server.h             \
+	server.c             \
+	sd_prefs.c
 	
 libpidgin_sharedesk_la_LDFLAGS= \
 	-lgssdp-1.0	\

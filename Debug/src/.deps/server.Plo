@@ -103,10 +103,11 @@ server.lo: /home/roby/Projects/pidgin-sharedesk/src/server.c \
   /usr/include/libpurple/privacy.h \
   /home/roby/Projects/pidgin-sharedesk/src/sharedesk.h \
   /usr/include/libpurple/account.h /usr/include/libpurple/plugin.h \
-  /usr/include/libpurple/network.h /usr/include/unistd.h \
-  /usr/include/bits/posix_opt.h /usr/include/bits/confname.h \
-  /usr/include/getopt.h /usr/include/libpurple/debug.h \
-  /usr/include/libpurple/upnp.h \
+  /home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h \
+  /usr/include/libpurple/pluginpref.h /usr/include/libpurple/network.h \
+  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+  /usr/include/bits/confname.h /usr/include/getopt.h \
+  /usr/include/libpurple/debug.h \
   /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h
 
 /home/roby/Projects/pidgin-sharedesk/src/server.h:
@@ -415,6 +416,10 @@ server.lo: /home/roby/Projects/pidgin-sharedesk/src/server.c \
 
 /usr/include/libpurple/plugin.h:
 
+/home/roby/Projects/pidgin-sharedesk/src/sd_prefs.h:
+
+/usr/include/libpurple/pluginpref.h:
+
 /usr/include/libpurple/network.h:
 
 /usr/include/unistd.h:
@@ -426,7 +431,5 @@ server.lo: /home/roby/Projects/pidgin-sharedesk/src/server.c \
 /usr/include/getopt.h:
 
 /usr/include/libpurple/debug.h:
-
-/usr/include/libpurple/upnp.h:
 
 /home/roby/Projects/pidgin-sharedesk/src/upnp-functions.h:
